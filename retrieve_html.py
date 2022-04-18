@@ -3,41 +3,59 @@ from bs4 import BeautifulSoup
 import pandas as pd
 
 
-pd_exhibits = pd.DataFrame([], columns = ["Museum Name", "Exhibition Name", "When"])
-pd_exhibits_future = pd_exhibits.copy()
+def save_exhibits_to_csv(museum, URL, id, class_1, class_title, class_time):
 
-## Albertina
-URL = "https://www.albertina.at/en/exhibitions/"
-page = requests.get(URL)
+    pd_exhibits = pd.DataFrame([], columns = ["Museum Name", "Exhibition Name", "When"])
+  
+    page = requests.get(URL)
+    soup = BeautifulSoup(page.content, "html.parser")
+   
+    results = soup.find(id=id)
+    elements = results.find_all("div", class_=class_1)
 
-soup = BeautifulSoup(page.content, "html.parser")
+    for i, element in enumerate(elements):
+        try:
+            title_element = element.find("div", class_=class_title).text
+        except: 
+            title_element = element.find(class_title, class_=class_title).text
+        
+        try:
+            timeline_element = element.find("div", class_=class_time).text
+        except: 
+            timeline_element = element.find(class_time, class_=class_time).text
 
-current_results = soup.find(id="current")
-future_results = soup.find(id="preview")
+        pd_exhibits.loc[i,:] = [museum, title_element, timeline_element]
 
-exhibition_elements = current_results.find_all("div", class_="col-md-12 box")
-future_exhib_elements = future_results.find_all("div", class_="col-md-4 col-sm-6 col-xs-landscape-6 box")
+    print(pd_exhibits)
+    try:
+        f = open("exhibits.csv")
+        f.close()
+        pd_exhibits.to_csv("exhibits.csv", mode = "a", header = False)
+    except:
+        pd_exhibits.to_csv("exhibits.csv", mode = "w", header = True)
 
-print("Current Exhibitions")
-for i, exhib_element in enumerate(exhibition_elements):
-    title_element = exhib_element.find("div", class_="h2")
-    timeline_element = exhib_element.find("div", class_="h3")
-    pd_exhibits.loc[i,:] = ["Albertina", title_element.text, timeline_element.text]
+    return
 
-print(pd_exhibits)
-pd_exhibits.to_csv("exhibits.csv", mode = "a")
+# Albertina
 
-print("Upcoming Exhibitions")
-for i, exhib_element in enumerate(future_exhib_elements):                             
-    title_element = exhib_element.find("div", class_="h2")
-    timeline_element = exhib_element.find("div", class_="h4")          
-    pd_exhibits_future.loc[i,:] = ["Albertina", title_element.text, timeline_element.text]
+save_exhibits_to_csv(museum="Albertina",URL="https://www.albertina.at/en/exhibitions/", 
+                     id="current", class_1="col-md-12 box", class_title="h2", class_time="h3")
 
-print(pd_exhibits_future)
-pd_exhibits_future.to_csv("exhibits.csv", mode = "a", header = False)
+save_exhibits_to_csv(museum="Albertina",URL="https://www.albertina.at/en/exhibitions/", 
+                     id="preview", class_1="col-md-4 col-sm-6 col-xs-landscape-6 box", class_title="h2", class_time="h4")
+
+# Albertina modern
+
+save_exhibits_to_csv(museum="Albertina Modern",URL="https://www.albertina.at/en/albertina-modern/exhibitions/",
+                     id="current", class_1="col-md-12 box float-none", class_title="h2", class_time="h3")
+
+save_exhibits_to_csv(museum="Albertina Modern",URL="https://www.albertina.at/en/albertina-modern/exhibitions/",
+                     id="preview", class_1="col-md-12 box float-none", class_title="h2", class_time="h3")
+
+
 
 ## Drop Duplicates
-pd_exhibits_csv = pd.read_csv("exhibits.csv")
-pd_exhibits_csv_dropDups = pd_exhibits_csv.drop_duplicates()
+pd_exhibits_csv = pd.read_csv("exhibits.csv").reset_index()
+pd_exhibits_csv_dropDups = pd_exhibits_csv.drop_duplicates(["Museum Name", "Exhibition Name", "When"])
 pd_exhibits_csv_dropDups[["Museum Name", "Exhibition Name", "When"]].to_csv("exhibits.csv")
 
