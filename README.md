@@ -12,6 +12,7 @@ It appends (saves) new records to a csv `exhibits.csv`.
   - Mocco Museum (Barcelona, Spain)
   - Gropius Bau (Berlin, Germany)
 - Features:
+  - Add web link to the exhibition.  
   - Return what exhibitions you can attend as of `input_date`
   - Return whether there are any exhibitions of an artist specified in `stdin`
   - Delete past exhibitions from `exhibits.csv` file
