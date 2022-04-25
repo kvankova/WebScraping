@@ -3,11 +3,16 @@
 Scraping Museums Webpages for current and upcoming exhibitions.
 It appends (saves) new records to a csv `exhibits.csv`.
 
-**Currently retrieves data from museums:**
+## How to use
+- Run `retrieve_html.py` in Terminal 
+  - it returns a list of retrieved exhibitions 
+  - it saves the exhibitions as a `exhibits.csv` file or appends new records to existing `exhibits.csv` file in the same folder
+
+## Currently retrieves data from museums
 - Albertina (Wien, Austria)
 - Albertina Modern (Wien, Austria)
 
-**In development:**
+## In development
 - Museums:
   - Mocco Museum (Barcelona, Spain)
   - Gropius Bau (Berlin, Germany)
